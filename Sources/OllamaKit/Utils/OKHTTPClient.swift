@@ -27,7 +27,7 @@ internal extension OKHTTPClient {
         return try decoder.decode(T.self, from: data)
     }
     
-    func stream<T: Decodable>(request: URLRequest, with responseType: T.Type) -> AsyncThrowingStream<T, Error> {
+    func stream<T: Decodable & Sendable>(request: URLRequest, with responseType: T.Type) -> AsyncThrowingStream<T, Error> {
         return AsyncThrowingStream { continuation in
             Task {
                 do {
