@@ -51,6 +51,9 @@ public struct OKChatResponse: OKCompletionResponse, Decodable, Sendable {
         /// The content of the message.
         public var content: String
         
+        /// The content of the thinking
+        public var thinking: String
+        
         /// An optional array of ``ToolCall`` instances representing any tools invoked in the response.
         public var toolCalls: [ToolCall]?
         

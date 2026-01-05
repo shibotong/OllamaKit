@@ -27,12 +27,15 @@ public struct OKChatRequestData: Sendable {
     /// Optional ``OKCompletionOptions`` providing additional configuration for the chat request.
     public var options: OKCompletionOptions?
     
-    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil) {
+    public let think: OKJSONValue
+    
+    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil, think: OKJSONValue = .boolean(false)) {
         self.stream = tools == nil
         self.model = model
         self.messages = messages
         self.tools = tools
         self.format = format
+        self.think = think
     }
     
     /// A structure that represents a single message in the chat request.
