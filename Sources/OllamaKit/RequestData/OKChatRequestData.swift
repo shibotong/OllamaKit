@@ -27,9 +27,9 @@ public struct OKChatRequestData: Sendable {
     /// Optional ``OKCompletionOptions`` providing additional configuration for the chat request.
     public var options: OKCompletionOptions?
     
-    public let think: OKJSONValue
+    public let think: OKJSONValue?
     
-    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil, think: OKJSONValue = .boolean(false)) {
+    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil, think: OKJSONValue? = nil) {
         self.stream = tools == nil
         self.model = model
         self.messages = messages
@@ -77,13 +77,13 @@ extension OKChatRequestData: Encodable {
         try container.encode(messages, forKey: .messages)
         try container.encodeIfPresent(tools, forKey: .tools)
         try container.encodeIfPresent(format, forKey: .format)
-
+        try container.encodeIfPresent(think, forKey: .think)
         if let options {
             try options.encode(to: encoder)
         }
     }
     
     private enum CodingKeys: String, CodingKey {
-        case stream, model, messages, tools, format
+        case stream, model, messages, tools, format, think
     }
 }
