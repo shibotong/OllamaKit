@@ -46,14 +46,18 @@ public struct OKChatRequestData: Sendable {
         /// A string containing the message's content.
         public let content: String
         
+        /// A string containing the tool name
+        public let toolName: String?
+        
         /// An optional array of base64-encoded images.
         public let images: [String]?
         
         public let toolCalls: [ToolCall]?
         
-        public init(role: Role, content: String, images: [String]? = nil, toolCalls: [ToolCall]? = nil) {
+        public init(role: Role, content: String, toolName: String? = nil, images: [String]? = nil, toolCalls: [ToolCall]? = nil) {
             self.role = role
             self.content = content
+            self.toolName = toolName
             self.images = images
             self.toolCalls = toolCalls
         }
