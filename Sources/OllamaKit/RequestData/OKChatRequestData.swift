@@ -9,7 +9,7 @@ import Foundation
 
 /// A structure that encapsulates data for chat requests to the Ollama API.
 public struct OKChatRequestData: Sendable {
-    private let stream: Bool
+    public let stream: Bool
     
     /// A string representing the model identifier to be used for the chat session.
     public let model: String
@@ -29,8 +29,8 @@ public struct OKChatRequestData: Sendable {
     
     public let think: OKJSONValue?
     
-    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil, think: OKJSONValue? = nil) {
-        self.stream = tools == nil
+    public init(model: String, messages: [Message], tools: [OKJSONValue]? = nil, format: OKJSONValue? = nil, think: OKJSONValue? = nil, stream: Bool = true) {
+        self.stream = stream
         self.model = model
         self.messages = messages
         self.tools = tools
@@ -49,10 +49,13 @@ public struct OKChatRequestData: Sendable {
         /// An optional array of base64-encoded images.
         public let images: [String]?
         
-        public init(role: Role, content: String, images: [String]? = nil) {
+        public let toolCalls: [ToolCall]?
+        
+        public init(role: Role, content: String, images: [String]? = nil, toolCalls: [ToolCall]? = nil) {
             self.role = role
             self.content = content
             self.images = images
+            self.toolCalls = toolCalls
         }
         
         /// An enumeration that represents the role of the message sender.
@@ -65,6 +68,24 @@ public struct OKChatRequestData: Sendable {
             
             /// Indicates the message is from the user.
             case user
+            
+            /// Indicates the message is from a tool call.
+            case tool
+        }
+        
+        /// A structure that represents a tool call in the response.
+        public struct ToolCall: Encodable, Sendable {
+            /// An optional ``Function`` structure representing the details of the tool call.
+            public let function: Function?
+            
+            /// A structure that represents the details of a tool call.
+            public struct Function: Encodable, Sendable {
+                /// The name of the tool being called.
+                public let name: String
+                
+                /// An optional ``OKJSONValue`` representing the arguments passed to the tool.
+                public let arguments: OKJSONValue?
+            }
         }
     }
 }
