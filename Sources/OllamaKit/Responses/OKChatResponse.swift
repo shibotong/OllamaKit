@@ -52,7 +52,7 @@ public struct OKChatResponse: OKCompletionResponse, Decodable, Sendable {
         public var content: String
         
         /// The content of the thinking
-        public var thinking: String
+        public var thinking: String?
         
         /// An optional array of ``ToolCall`` instances representing any tools invoked in the response.
         public var toolCalls: [ToolCall]?
