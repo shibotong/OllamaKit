@@ -82,6 +82,10 @@ public struct OKChatRequestData: Sendable {
             /// An optional ``Function`` structure representing the details of the tool call.
             public let function: Function?
             
+            public init(function: Function?) {
+                self.function = function
+            }
+            
             /// A structure that represents the details of a tool call.
             public struct Function: Encodable, Sendable {
                 /// The name of the tool being called.
@@ -89,6 +93,11 @@ public struct OKChatRequestData: Sendable {
                 
                 /// An optional ``OKJSONValue`` representing the arguments passed to the tool.
                 public let arguments: OKJSONValue?
+                
+                public init(name: String, arguments: OKJSONValue?) {
+                    self.name = name
+                    self.arguments = arguments
+                }
             }
         }
     }
