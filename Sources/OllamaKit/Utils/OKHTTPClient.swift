@@ -15,14 +15,14 @@ internal struct OKHTTPClient {
 
 internal extension OKHTTPClient {
     func send(request: URLRequest) async throws -> Void {
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
         
-        try validate(response: response)
+        try validate(response: response, data: data)
     }
     
     func send<T: Decodable>(request: URLRequest, with responseType: T.Type) async throws -> T {
         let (data, response) = try await URLSession.shared.data(for: request)
-        try validate(response: response)
+        try validate(response: response, data: data)
         
         return try decoder.decode(T.self, from: data)
     }
@@ -32,7 +32,7 @@ internal extension OKHTTPClient {
             Task {
                 do {
                     let (bytes, response) = try await URLSession.shared.bytes(for: request)
-                    try validate(response: response)
+                    try await validate(response: response, bytes: bytes)
 
                     continuation.onTermination = { terminationState in
                         // Cancellation of our task should cancel the URLSessionDataTask
@@ -70,7 +70,7 @@ internal extension OKHTTPClient {
     func send<T: Decodable>(request: URLRequest, with responseType: T.Type) -> AnyPublisher<T, Error> {
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { data, response in
-                try self.validate(response: response)
+                try self.validate(response: response, data: data)
                 
                 return data
             }
@@ -81,8 +81,8 @@ internal extension OKHTTPClient {
     
     func send(request: URLRequest) -> AnyPublisher<Void, Error> {
         return URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { _, response in
-                try self.validate(response: response)
+            .tryMap { data, response in
+                try self.validate(response: response, data: data)
                 
                 return ()
             }
@@ -121,8 +121,24 @@ internal extension OKHTTPClient {
 }
 
 private extension OKHTTPClient {
-    func validate(response: URLResponse) throws {
+    func validate(response: URLResponse, data: Data) throws {
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            let error = try self.decoder.decode(OKError.self, from: data)
+            throw error
+        }
+    }
+    
+    func validate(response: URLResponse, bytes: URLSession.AsyncBytes) async throws {
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            var buffer = Data()
+            for try await byte in bytes {
+                buffer.append(byte)
+                
+                while let chunk = self.extractNextJSON(from: &buffer) {
+                    let error = try self.decoder.decode(OKError.self, from: chunk)
+                    throw error
+                }
+            }
             throw URLError(.badServerResponse)
         }
     }
