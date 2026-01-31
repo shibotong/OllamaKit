@@ -8,6 +8,9 @@
 import Foundation
 
 internal enum OKRouter {
+    
+    nonisolated(unsafe) static var bearerToken: String? = nil
+    
     case root
     case models
     case modelInfo(data: OKModelInfoRequestData)
@@ -65,7 +68,11 @@ internal enum OKRouter {
     }
     
     internal var headers: [String: String] {
-        ["Content-Type": "application/json"]
+        var headers: [String: String] = ["Content-Type": "application/json"]
+        if let bearerToken = OKRouter.bearerToken {
+            headers["Authorization"] = "Bearer \(bearerToken)"
+        }
+        return headers
     }
 }
 

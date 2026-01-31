@@ -32,9 +32,10 @@ public struct OllamaKit: Sendable {
     /// ```
     ///
     /// - Parameter baseURL: The base URL to use for API requests.
-    public init(baseURL: URL) {
-        let router = OKRouter.self
+    public init(baseURL: URL, authorization: String? = nil) {
+        var router = OKRouter.self
         self.router = router
+        self.router.bearerToken = authorization
         self.baseURL = baseURL
     }
 }
